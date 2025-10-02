@@ -2,8 +2,7 @@ const pino = require("pino");
 const jwt = require("jsonwebtoken");
 const express = require("express");
 const bcryptjs = require("bcryptjs");
-
-const { body, validationResult } = require("express-validator");
+const { body, header, validationResult } = require("express-validator");
 
 const connectToDB = require("../models/db");
 
@@ -39,9 +38,7 @@ authRoutes.post(
       const existingUser = await collection.findOne({ email });
 
       if (existingUser) {
-        return res
-          .status(409)
-          .json({ message: "Email is already registered." });
+        return res.status(404).json({ error: "User not found" });
       }
 
       const salt = await bcryptjs.genSalt(10);
@@ -119,9 +116,80 @@ authRoutes.post(
       });
 
       logger.info(`User logged in with email: ${email}`);
-
     } catch (error) {
       logger.error(error, "Error during login");
+      return res.status(500).send("Internal server error");
+    }
+  }
+);
+
+authRoutes.put(
+  "/update",
+  body("firstName").optional().isString().notEmpty(),
+  body("lastName").optional().isString().notEmpty(),
+  body("password").optional().isLength({ min: 6 }),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      logger.error("Validation errors in update request", errors.array());
+      return res
+        .status(400)
+        .json({ errors: errors.array(), message: "Invalid input" });
+    }
+
+    const email = req.header("email");
+
+    if (!email) {
+      logger.error("Email not found in the request headers");
+      return res
+        .status(400)
+        .json({ error: "Email not found in the request headers" });
+    }
+
+    try {
+      const db = await connectToDB();
+      const collection = db.collection("users");
+      const user = await collection.findOne({ email });
+
+      if (!user) {
+        logger.error(`User with email ${email} not found`);
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      /// Update user details
+
+      if (req.body.firstName) user.firstName = req.body.firstName;
+      if (req.body.lastName) user.lastName = req.body.lastName;
+
+      if (req.body.password) {
+        const salt = await bcryptjs.genSalt(10);
+        user.password = await bcryptjs.hash(req.body.password, salt);
+      }
+
+      user.updatedAt = new Date();
+
+      /// Save updated user details in database
+      const updatedUser = await collection.findOneAndUpdate(
+        { email },
+        { $set: user },
+        { returnDocument: "after" }
+      );
+
+      const authtoken = jwt.sign(
+        { userId: updatedUser.value._id },
+        JWT_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
+
+      res.json({
+        authtoken,
+        email,
+        name: `${updatedUser.value.firstName} ${updatedUser.value.lastName}`,
+      });
+    } catch (error) {
+      logger.error(error, "Error during user update");
       return res.status(500).send("Internal server error");
     }
   }
