@@ -5,6 +5,8 @@ const bcryptjs = require("bcryptjs");
 const { body, header, validationResult } = require("express-validator");
 
 const connectToDB = require("../models/db");
+const authMiddleware = require("../middlewares/auth");
+const { ObjectId } = require("mongodb");
 
 const logger = pino();
 const authRoutes = express.Router();
@@ -125,13 +127,17 @@ authRoutes.post(
 
 authRoutes.put(
   "/update",
+  authMiddleware,
   body("firstName").optional().isString().notEmpty(),
   body("lastName").optional().isString().notEmpty(),
   body("password").optional().isLength({ min: 6 }),
   async (req, res) => {
+    const _id = req.user.userId;
     const errors = validationResult(req);
+
     if (!errors.isEmpty()) {
       logger.error("Validation errors in update request", errors.array());
+
       return res
         .status(400)
         .json({ errors: errors.array(), message: "Invalid input" });
@@ -149,21 +155,32 @@ authRoutes.put(
     try {
       const db = await connectToDB();
       const collection = db.collection("users");
-      const user = await collection.findOne({ email });
+
+      const user = await collection.findOne({
+        email,
+      });
 
       if (!user) {
         logger.error(`User with email ${email} not found`);
         return res.status(404).json({ error: "User not found" });
       }
 
+      if (Object.keys(req.body).length === 0) {
+        return res.status(400).json({ error: "No fields to update" });
+      }
+
+      const { firstName, lastName, password } = req.body;
+
       /// Update user details
 
-      if (req.body.firstName) user.firstName = req.body.firstName;
-      if (req.body.lastName) user.lastName = req.body.lastName;
+      if (firstName && lastName) {
+        user.firstName = firstName.normalize("NFC");
+        user.lastName = lastName;
+      }
 
-      if (req.body.password) {
+      if (password) {
         const salt = await bcryptjs.genSalt(10);
-        user.password = await bcryptjs.hash(req.body.password, salt);
+        user.password = await bcryptjs.hash(password, salt);
       }
 
       user.updatedAt = new Date();
@@ -175,18 +192,18 @@ authRoutes.put(
         { returnDocument: "after" }
       );
 
-      const authtoken = jwt.sign(
-        { userId: updatedUser.value._id },
-        JWT_SECRET,
-        {
-          expiresIn: "1h",
-        }
-      );
+      if (!updatedUser) {
+        return res.status(500).json({ error: "Failed to update user" });
+      }
+
+      const authtoken = jwt.sign({ userId: updatedUser._id }, JWT_SECRET, {
+        expiresIn: "1h",
+      });
 
       res.json({
         authtoken,
         email,
-        name: `${updatedUser.value.firstName} ${updatedUser.value.lastName}`,
+        name: `${updatedUser.firstName} ${updatedUser.lastName}`,
       });
     } catch (error) {
       logger.error(error, "Error during user update");
