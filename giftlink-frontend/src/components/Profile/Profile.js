@@ -13,15 +13,7 @@ const Profile = () => {
   const [changed, setChanged] = useState("");
   const [editMode, setEditMode] = useState(false);
 
-  useEffect(() => {
-    if (!ctx.isLoggedIn) {
-      navigate("/app/login");
-    } else {
-      fetchUserProfile();
-    }
-  }, [ctx.isLoggedIn]);
-
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useEffect(() => {
     try {
       const name = ctx.state.name;
       const email = ctx.state.email;
@@ -40,7 +32,19 @@ const Profile = () => {
       console.error(error);
       // Handle error case
     }
-  };
+  }, [ctx.state.name, ctx.state.email, ctx.state.token]);
+
+  useEffect(() => {
+    if (!ctx.isLoggedIn) {
+      navigate("/app/login");
+    } else {
+      fetchUserProfile();
+    }
+  }, [ctx.isLoggedIn, fetchUserProfile, navigate]);
+
+  /////////////////////
+  /// Handlers
+  /////////////////////
 
   const handleEdit = () => {
     setEditMode(true);
@@ -111,6 +115,10 @@ const Profile = () => {
       // Handle error case
     }
   };
+
+  /////////////////////
+  /// Render
+  /////////////////////
 
   return (
     <div className="profile-container">
