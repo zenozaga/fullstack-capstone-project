@@ -1,11 +1,18 @@
 /*jshint esversion: 8 */
 require("dotenv").config();
-const express = require("express");
 const cors = require("cors");
+const express = require("express");
+const logger = require("./logger");
 const pinoLogger = require("./logger");
+const pinoHttp = require("pino-http");
 
 const connectToDatabase = require("./models/db");
 const { loadData } = require("./util/import-mongo/index");
+
+// Routes
+const authRoutes = require("./routes/authRoutes");
+const giftRoutes = require("./routes/giftRoutes");
+const searchRoutes = require("./routes/searchRoutes");
 
 const app = express();
 const port = 3060;
@@ -17,32 +24,21 @@ connectToDatabase()
   })
   .catch((e) => console.error("Failed to connect to DB", e));
 
+
+
+// Middleware
 app.use(express.json());
 app.use("*", cors());
-
-// Route files
-// Gift API Task 1: import the giftRoutes and store in a constant called giftroutes
-const giftRoutes = require("./routes/giftRoutes");
-
-// Search API Task 1: import the searchRoutes and store in a constant called searchRoutes
-const searchRoutes = require("./routes/searchRoutes");
-
-const authRoutes = require("./routes/authRoutes");
-
-const pinoHttp = require("pino-http");
-const logger = require("./logger");
-
 app.use(pinoHttp({ logger }));
 
-// auth routes
+
+
+// Use Routers
 app.use("/api/auth", authRoutes);
-
-// Use Routes
-// Gift API Task 2: add the giftRoutes to the server by using the app.use() method.
 app.use("/api/gifts", giftRoutes);
-
-// Search API Task 2: add the searchRoutes to the server by using the app.use() method.
 app.use("/api/search", searchRoutes);
+
+
 
 // Global Error Handler
 app.use((err, req, res, next) => {
@@ -50,9 +46,13 @@ app.use((err, req, res, next) => {
   res.status(500).send("Internal Server Error");
 });
 
+
+
 app.get("/", (req, res) => {
   res.send("Inside the server");
 });
+
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
