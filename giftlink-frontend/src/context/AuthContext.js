@@ -21,35 +21,49 @@ import React, { createContext, useState, useContext, useEffect } from "react";
  */
 const AppContext = createContext();
 
+function saveCredentials(name, email, token) {
+  const data = { name, email, token };
+  sessionStorage.setItem("auth-credentials", JSON.stringify(data));
+}
+
+/**
+ *
+ * @returns {AuthState | null}
+ */
+function getCredentials() {
+  try {
+    const data = sessionStorage.getItem("auth-credentials");
+    return data ? JSON.parse(data) : null;
+  } catch {
+    return null;
+  }
+}
+
 export const AuthProvider = ({ children }) => {
   const [state, setState] = useState(/** @type {AuthState} */ ({}));
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = sessionStorage.getItem("auth-token");
-    const name = sessionStorage.getItem("user-name");
-    const email = sessionStorage.getItem("user-email");
+    const credentials = getCredentials();
+    if (!credentials) return;
 
-    if (token) {
-      setState((prevState) => ({ ...prevState, token, name, email }));
+
+    if (credentials.token) {
+      setState((prevState) => ({ ...prevState, ...credentials }));
       setIsLoggedIn(true);
     }
   }, []);
 
   const logout = () => {
-    sessionStorage.removeItem("auth-token");
-    sessionStorage.removeItem("user-name");
-    sessionStorage.removeItem("user-email");
+    sessionStorage.removeItem("auth-credentials");
     setIsLoggedIn(false);
     setState({});
   };
 
   const login = (name, email, token) => {
-    sessionStorage.setItem("auth-token", token);
-    sessionStorage.setItem("user-name", name);
-    sessionStorage.setItem("user-email", email);
-    setIsLoggedIn(true);
+    saveCredentials(name, email, token);
     setState((prevState) => ({ ...prevState, name, email, token }));
+    setIsLoggedIn(true);
   };
 
   return (

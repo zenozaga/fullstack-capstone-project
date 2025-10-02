@@ -87,13 +87,13 @@ body,
 
 .card-body {
   padding: 1rem;
-  flex-grow: 1; 
+  flex-grow: 1;
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
 }
 
 .date-added {
-  margin-top: auto; 
+  margin-top: auto;
 }
 
 .card-footer {
@@ -104,36 +104,36 @@ body,
 .btn-primary {
   display: block;
   width: 100%;
-  box-sizing: border-box; 
+  box-sizing: border-box;
 }
 
 .list-group-item-success {
-  color: #28a745; 
+  color: #28a745;
 }
 
 .list-group-item-warning {
-  color: #ffc107; 
+  color: #ffc107;
 }
 
 .navbar-brand,
 .nav-link {
-  font-size: 1.2rem; 
-  font-weight: 500; 
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
 .nav-item .nav-link {
-  font-size: 1.1rem; 
-  font-weight: bold; 
-  color: #0056b3; 
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #0056b3;
 }
 
 .navbar {
-  background-color: #f8f9fa; 
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .nav-item .nav-link:hover {
-  color: #004085; 
+  color: #004085;
   text-decoration: none;
 }
 
@@ -145,34 +145,46 @@ body,
   font-weight: bold;
 }
 
-.nav-link.login-btn {
-  background-color: #28a745;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
+.nav-link.auth-btn {
+  border-radius: 100px;
   transition: background-color 0.2s ease-in-out;
-}
-
-.nav-link.login-btn:hover,
-.nav-link.login-btn:focus {
-  background-color: #218838;
-  color: white;
+  font-weight: 500;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 2rem !important;
+  font-size: 1rem !important;
+  border-radius: 100px;
+  background-color: #dfdfdf;
+  color: #737373;
   text-decoration: none;
 }
 
-.nav-link.logout-btn {
-  background-color: #dc3545;
-  color: white !important;
-  padding: 0.5rem 2rem !important;
-  border-radius: 0.25rem;
-  transition: background-color 0.2s ease-in-out;
-  border-radius: 0.25rem;
-  transition: background-color 0.2s ease-in-out;
+.nav-link.auth-btn:hover,
+.nav-link.auth-btn:focus {
+  background-color: #e2e2e2;
+  color: #555;
+  text-decoration: none;
 }
 
+
+.nav-link.auth-btn.active {
+  background-color: #3395d6;
+  color: white !important;
+  text-decoration: none;
+  padding: 0.3rem 2rem !important;
+}
+
+.nav-link.logout-btn{
+  color: #e44040 !important;
+}
+ 
 .nav-link.logout-btn:hover,
 .nav-link.logout-btn:focus {
   background-color: #c82333;
-  color: white;
+  color: white !important;
   text-decoration: none;
+  border-radius: 100px;
 }
+

@@ -22,12 +22,19 @@ function DetailsPage() {
       return;
     }
 
+    if (!ctx.state.token) return;
+
     // get the gift to be rendered on the details page
     const fetchGift = async () => {
       try {
         // Task 2: Fetch gift details
         const response = await fetch(
-          `${urlConfig.backendUrl}/api/gifts/${productId}`
+          `${urlConfig.backendUrl}/api/gifts/${productId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${ctx.state.authToken}`,
+            },
+          }
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -45,14 +52,7 @@ function DetailsPage() {
 
     // Task 3: Scroll to top on component mount
     window.scrollTo(0, 0);
-  }, [productId]);
-
-  // redirect to login if not authenticated
-  useEffect(() => {
-    if (!ctx.isLoggedIn) {
-      navigate("/app/login");
-    }
-  }, [ctx.isLoggedIn, navigate]);
+  }, [productId, ctx.isLoggedIn, ctx.state.token]);
 
   /////////////////////
   /// Handlers

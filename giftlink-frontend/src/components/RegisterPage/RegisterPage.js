@@ -50,7 +50,7 @@ function RegisterPage() {
         return;
       }
 
-      ctx.login(data.name, data.email, data.authToken);
+      ctx.login(data.name, data.email, data.authtoken);
       navigate("/app");
     } catch (error) {
       setError(error.message || "Registration failed");

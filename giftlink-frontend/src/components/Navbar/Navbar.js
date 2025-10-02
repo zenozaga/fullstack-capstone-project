@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useAppContext } from "../../context/AuthContext";
+import UserNavbar from "./UserNavbar";
 
 export default function Navbar() {
   const ctx = useAppContext();
@@ -31,28 +32,28 @@ export default function Navbar() {
           </li>
         </ul>
 
-        <ul className="navbar-nav">
-          {!ctx.isLoggedIn ? (
-            <>
-              <li className="nav-item">
-                <NavLink className="nav-link login-btn" to="/app/login">
-                  Login
-                </NavLink>{" "}
-              </li>
-              <li className="nav-item">
-                <NavLink className="nav-link" to="/app/register">
-                  Register
-                </NavLink>{" "}
-              </li>
-            </>
-          ) : (
+        {!ctx.isLoggedIn && (
+          <ul className="navbar-nav d-flex flex-row gap-3">
             <li className="nav-item">
-              <button className="nav-link logout-btn" onClick={ctx.logout}>
-                Logout
-              </button>{" "}
+              <NavLink className="nav-link login-btn auth-btn" to="/app/login">
+                Login
+              </NavLink>{" "}
             </li>
-          )}
-        </ul>
+            <li className="nav-item">
+              <NavLink className="nav-link auth-btn" to="/app/register">
+                Register
+              </NavLink>{" "}
+            </li>
+          </ul>
+        )}
+
+        {ctx.isLoggedIn && (
+          <UserNavbar
+            name={ctx.state.name}
+            email={ctx.state.email}
+            onLogout={ctx.logout}
+          />
+        )}
       </nav>
     </nav>
   );

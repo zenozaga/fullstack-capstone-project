@@ -37,7 +37,7 @@ function LoginPage() {
     }
 
     const data = await response.json();
-    ctx.login(data.name, data.email, data.authToken);
+    ctx.login(data.name, data.email, data.authtoken);
 
     navigate("/app");
   };
