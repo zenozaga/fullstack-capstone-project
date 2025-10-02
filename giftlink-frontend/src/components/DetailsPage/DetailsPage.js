@@ -47,10 +47,25 @@ function DetailsPage() {
     window.scrollTo(0, 0);
   }, [productId]);
 
+  // redirect to login if not authenticated
+  useEffect(() => {
+    if (!ctx.isLoggedIn) {
+      navigate("/app/login");
+    }
+  }, [ctx.isLoggedIn, navigate]);
+
+  /////////////////////
+  /// Handlers
+  /////////////////////
+
   const handleBackClick = () => {
     // Task 4: Handle back click
     navigate(-1);
   };
+
+  ////////////////////////
+  /// Render
+  ////////////////////////
 
   //The comments have been hardcoded for this project.
   const comments = [

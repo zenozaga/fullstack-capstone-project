@@ -3,8 +3,11 @@ import React, { useMemo, useState } from "react";
 import "./RegisterPage.css";
 import { urlConfig } from "../../config";
 import { Link, useNavigate } from "react-router-dom";
+import { useAppContext } from "../../context/AuthContext";
 
 function RegisterPage() {
+
+  const ctx = useAppContext();
   const navigate = useNavigate();
 
   //insert code here to create useState hook variables for firstName, lastName, email, password
@@ -47,7 +50,8 @@ function RegisterPage() {
         return;
       }
 
-      navigate("/app/login");
+      ctx.login(data.name, data.email, data.authToken);
+      navigate("/app");
     } catch (error) {
       setError(error.message || "Registration failed");
     }

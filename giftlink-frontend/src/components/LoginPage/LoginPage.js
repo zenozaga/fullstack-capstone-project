@@ -37,10 +37,7 @@ function LoginPage() {
     }
 
     const data = await response.json();
-    sessionStorage.setItem("auth-token", data.token);
-    sessionStorage.setItem("user-name", data.name);
-    ctx.setIsLoggedIn(true);
-    ctx.setUserName(data.name);
+    ctx.login(data.name, data.email, data.authToken);
 
     navigate("/app");
   };

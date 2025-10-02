@@ -139,7 +139,7 @@ body,
 
 .nav-item.active .nav-link,
 .nav-item .nav-link.active {
-  color: #3395d6;
+  color: #3395d6 !important;
   background-color: transparent;
   text-decoration: underline;
   font-weight: bold;
@@ -162,8 +162,10 @@ body,
 
 .nav-link.logout-btn {
   background-color: #dc3545;
-  color: white;
-  padding: 0.5rem 1rem;
+  color: white !important;
+  padding: 0.5rem 2rem !important;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease-in-out;
   border-radius: 0.25rem;
   transition: background-color 0.2s ease-in-out;
 }
