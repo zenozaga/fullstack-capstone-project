@@ -32,7 +32,7 @@ function DetailsPage() {
           `${urlConfig.backendUrl}/api/gifts/${productId}`,
           {
             headers: {
-              Authorization: `Bearer ${ctx.state.authToken}`,
+              Authorization: `Bearer ${ctx.state.token}`,
             },
           }
         );
@@ -52,7 +52,7 @@ function DetailsPage() {
 
     // Task 3: Scroll to top on component mount
     window.scrollTo(0, 0);
-  }, [productId, ctx.isLoggedIn, ctx.state.token]);
+  }, [productId, ctx.isLoggedIn, ctx.state.token, navigate]);
 
   /////////////////////
   /// Handlers
@@ -61,6 +61,16 @@ function DetailsPage() {
   const handleBackClick = () => {
     // Task 4: Handle back click
     navigate(-1);
+  };
+
+
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleString("default", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   ////////////////////////
@@ -128,11 +138,11 @@ function DetailsPage() {
           </p>
           <p>
             <strong>Date Added:</strong>
-            {gift.dateAdded}
+            {formatDate(gift.date_added)}
           </p>
           <p>
             <strong>Age (Years):</strong>
-            {gift.age}
+            {gift.age_years}
           </p>
           <p>
             <strong>Description:</strong>

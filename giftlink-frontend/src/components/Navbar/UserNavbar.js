@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import "./UserNavbar.css";
+import { Link } from "react-router-dom";
 
 export default function UserNavbar(props = {}) {
   const { firstLetter, lastLetter, name } = useMemo(() => {
@@ -19,7 +20,7 @@ export default function UserNavbar(props = {}) {
         </button>{" "}
       </li>
       <li className="nav-item">
-        <div className="col d-flex align-items-center user-badge">
+        <Link to="/app/profile" className="col d-flex align-items-center user-badge">
           <div className="avatar me-2">
             {firstLetter}
             {lastLetter}
@@ -28,7 +29,7 @@ export default function UserNavbar(props = {}) {
             <span className="avatar-name">{name}</span>
             <span className="avatar-email d-block">{props.email}</span>
           </div>
-        </div>
+        </Link>
       </li>
     </ul>
   );

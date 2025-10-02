@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { urlConfig } from "../../config";
@@ -19,7 +19,7 @@ function SearchPage() {
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       let url = new URL(`${urlConfig.backendUrl}/api/search`);
 
@@ -46,13 +46,13 @@ function SearchPage() {
     } catch (error) {
       throw error;
     }
-  };
+  }, [ageRange, category, condition, searchQuery]);
 
   useEffect(() => {
     fetchProducts().catch((error) => {
       console.error(error, " Fetching products failed");
     });
-  }, []);
+  }, [fetchProducts]);
 
   /////////////////////
   /// Handlers

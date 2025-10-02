@@ -30,11 +30,12 @@ router.get("/:id", async (req, res) => {
 
     // Task 2: use the collection() method to retrieve the gift collection
     const collection = db.collection("gifts");
-
     const id = req.params.id;
 
+    console.log(id, "id");
+
     // Task 3: Find a specific gift by ID using the collection.findOne method and store in constant called gift
-    const gift = await collection.findOne({ _id: ObjectId(id) });
+    const gift = await collection.findOne({ id });
 
     if (!gift) {
       return res.status(404).send("Gift not found");

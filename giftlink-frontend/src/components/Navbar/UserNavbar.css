@@ -1,10 +1,18 @@
-.user-badge{
+.user-badge {
   line-height: 1em;
+  padding: 0.4em 1em;
+  border-radius: 12px;
+  background-color: #eaeaea;
+}
+
+.user-badge:hover {
+  background-color: #d4d4d4;
+  text-decoration: none;
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background-color: #007bff;
   color: white;
@@ -12,14 +20,22 @@
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 1em;
+  font-size: .8em;
 }
 
 .avatar-name {
   font-weight: 500;
+  text-decoration: none;
 }
 
-.avatar-email{
+.avatar-email {
   font-size: 0.9em;
   color: #555;
+  text-decoration: none;
+}
+
+.avatar-email:hover,
+.avatar-name:hover {
+  color: #3395d6;
+  text-decoration: none;
 }
