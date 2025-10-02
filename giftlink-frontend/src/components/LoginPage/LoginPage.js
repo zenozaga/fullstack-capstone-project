@@ -28,6 +28,7 @@ function LoginPage() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: ctx.token ? `Bearer ${ctx.token}` : undefined,
       },
       body: JSON.stringify({ email, password }),
     }).finally(() => setIsLoading(false));
