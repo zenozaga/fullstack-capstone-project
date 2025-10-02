@@ -1,10 +1,9 @@
 const jwt = require("jsonwebtoken");
 const logger = require("../logger");
-
 const JWT_SECRET = process.env.JWT_SECRET;
 
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers["authorization"]?.split(" ")?.[1];
+module.exports = function authMiddleware(req, res, next) {
+  const authHeader = req.header("authorization")?.split(" ")?.[1];
   if (!authHeader) {
     return res.status(401).json({ error: "Authorization header missing" });
   }
@@ -18,5 +17,3 @@ const authMiddleware = (req, res, next) => {
     next();
   });
 };
-
-module.exports = authMiddleware;
