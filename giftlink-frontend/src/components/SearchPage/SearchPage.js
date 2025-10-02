@@ -1,83 +1,110 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { urlConfig } from "../../config";
+
+import "./SearchPage.css";
 
 const categories = ["Living", "Bedroom", "Bathroom", "Kitchen", "Office"];
 const conditions = ["New", "Like New", "Older"];
 
 function SearchPage() {
+  const navigate = useNavigate();
+
   //Task 1: Define state variables for the search query, age range, and search results.
   const [searchQuery, setSearchQuery] = useState("");
-  const [ageRange, setAgeRange] = useState([0, 100]);
+  const [ageRange, setAgeRange] = useState(6);
   const [searchResults, setSearchResults] = useState([]);
-  const [category, setCategory] = useState(null);
-  const [condition, setCondition] = useState(null);
 
-  useEffect(() => {
-    // fetch all products
-    const fetchProducts = async () => {
-      try {
-        let url = `${urlConfig.backendUrl}/api/gifts`;
-        console.log(url);
-        const response = await fetch(url);
-        if (!response.ok) {
-          //something went wrong
-          throw new Error(`HTTP error; ${response.status}`);
-        }
-        const data = await response.json();
-        setSearchResults(data);
-      } catch (error) {
-        console.log("Fetch error: " + error.message);
-      }
-    };
+  const [category, setCategory] = useState("");
+  const [condition, setCondition] = useState("");
 
-    fetchProducts();
-  }, []);
-
-  // Task 2. Fetch search results from the API based on user inputs.
-  const fetchSearchResults = async () => {
+  const fetchProducts = async () => {
     try {
       let url = new URL(`${urlConfig.backendUrl}/api/search`);
-      url.searchParams.append("query", searchQuery);
-      url.searchParams.append("minAge", ageRange[0]);
-      url.searchParams.append("maxAge", ageRange[1]);
 
+      // apply age range filter
+      url.searchParams.append("age_years", ageRange);
+
+      // apply category and condition filters if they are set
       if (category) url.searchParams.append("category", category);
+
+      // apply condition filter if set
       if (condition) url.searchParams.append("condition", condition);
 
-      console.log(url);
+      // apply search query if not empty
+      if (searchQuery && searchQuery.trim() !== "") {
+        url.searchParams.append("name", searchQuery);
+      }
+
       const response = await fetch(url);
       if (!response.ok) {
-        //something went wrong
         throw new Error(`HTTP error; ${response.status}`);
       }
       const data = await response.json();
       setSearchResults(data);
     } catch (error) {
-      console.log("Fetch error: " + error.message);
+      throw error;
     }
   };
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    fetchProducts().catch((error) => {
+      console.error(error, " Fetching products failed");
+    });
+  }, []);
+
+  /////////////////////
+  /// Handlers
+  /////////////////////
+
+  // Task 2. Fetch search results from the API based on user inputs.
+  const fetchSearchResults = () => {
+    fetchProducts().catch((error) => {
+      console.error(error, " Fetching products failed");
+    });
+  };
 
   const goToDetailsPage = (productId) => {
     // Task 6. Enable navigation to the details page of a selected gift.
     navigate(`/details/${productId}`);
   };
 
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleString("default", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const getConditionClass = (condition) => {
+    return condition === "New"
+      ? "list-group-item-success"
+      : "list-group-item-warning";
+  };
+
+  ///////////////////////
+  /// Render
+  ///////////////////////
+
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-6">
+    <div className="w-100 pt-5 row p-2 container mx-auto">
+      <div className="col-md-3 pt-3">
+        <div className="col-12 filters">
           <div className="filter-section mb-3 p-3 border rounded">
             <h5>Filters</h5>
             <div className="d-flex flex-column">
+              {/* Task 3: Implement dropdowns for category and condition filters. */}
+              <label className="form-label" htmlFor="categorySelect">
+                Category
+              </label>
               <select
-                placeholder="Search by condition"
+                placeholder="Search by category"
                 className="form-select mb-2"
                 value={category || ""}
-                onChange={(e) => setCategory(e.target.value || null)}
+                onChange={(e) => setCategory(e.target.value)}
               >
                 <option value="">All Categories</option>
                 {categories.map((cat) => (
@@ -87,21 +114,89 @@ function SearchPage() {
                 ))}
               </select>
 
+              <label className="form-label" htmlFor="conditionSelect">
+                Condition
+              </label>
+              <select
+                placeholder="Search by condition"
+                className="form-select mb-2"
+                value={condition}
+                onChange={(e) => setCondition(e.target.value.trim())}
+              >
+                <option value="">All Conditions</option>
+                {conditions.map((condition) => (
+                  <option key={condition} value={condition}>
+                    {condition}
+                  </option>
+                ))}
+              </select>
+
               {/* Task 4: Implement an age range slider and display the selected value. */}
+              <label className="form-label" htmlFor="ageRange">
+                Less then {ageRange} years
+              </label>
               <input
                 type="range"
                 className="form-range mb-2"
-                min="0"
-                max="100"
-                value={ageRange[1]}
+                min="1"
+                max="10"
+                value={ageRange}
                 placeholder="Search by max age"
-                onChange={(e) => setAgeRange([0, parseInt(e.target.value)])}
+                onChange={(e) => setAgeRange(parseInt(e.target.value))}
               />
             </div>
           </div>
           {/* Task 7: Add text input field for search criteria*/}
+          <label className="form-label" htmlFor="searchInput">
+            Search Gifts
+          </label>
+          <input
+            type="text"
+            className="form-control mb-3"
+            placeholder="Search gifts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
           {/* Task 8: Implement search button with onClick event to trigger search:*/}
-          {/*Task 5: Display search results and handle empty results with a message. */}
+          <button className="btn btn-primary" onClick={fetchSearchResults}>
+            Search
+          </button>
+        </div>
+      </div>
+      <div className="col-md-9 px-lg-4">
+        <div className="row justify-content-start">
+          {searchResults.map((gift) => (
+            <div key={gift.id} className="col-md-4 mb-4">
+              <div className="card product-card">
+                <div className="image-placeholder">
+                  {gift.image ? (
+                    <img src={gift.image} alt={gift.name} />
+                  ) : (
+                    <div className="no-image-available">No Image Available</div>
+                  )}
+                </div>
+                <div className="card-body">
+                  <h5 className="card-title">{gift.name}</h5>
+                  <p
+                    className={`card-text ${getConditionClass(gift.condition)}`}
+                  >
+                    {gift.condition}
+                  </p>
+                  <p className="card-text date-added">
+                    {formatDate(gift.date_added)}
+                  </p>
+                </div>
+                <div className="card-footer">
+                  <button
+                    onClick={() => goToDetailsPage(gift.id)}
+                    className="btn btn-primary w-100"
+                  >
+                    View Details
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
